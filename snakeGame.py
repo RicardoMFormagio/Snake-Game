@@ -31,8 +31,12 @@ while running:
                     directionX = 0
             if (event.key == pygame.K_RIGHT):
                 if not(directionX == -1 and directionY == 0):
-                    directionY = 1
-                    directionX = 0
+                    directionY = 0
+                    directionX = 1
+            if (event.key == pygame.K_LEFT):
+                if not(directionX == 1 and directionY == 0):
+                    directionY = 0
+                    directionX = -1
 
                 
 
