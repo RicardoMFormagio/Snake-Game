@@ -7,8 +7,7 @@ screen = pygame.display.set_mode((1000, 600))
 running = True
 
 cellSize = 20
-snakeX = 300
-snakeY = 200
+snake = [(300, 200), (280, 200), (260, 200)]
 
 directionX = 1
 directionY = 0
@@ -38,14 +37,14 @@ while running:
                     directionY = 0
                     directionX = -1
 
-                
-
-
     screen.fill("dark blue")
-    pygame.draw.rect(screen, "green", (snakeX, snakeY, cellSize, cellSize))
 
-    snakeX += directionX * cellSize
-    snakeY += directionY * cellSize
+    for s in snake:
+        pygame.draw.rect(screen, "green", (s[0], s[1],  cellSize, cellSize))
+                
+    newHead = (snake[0][0] + directionX * cellSize, snake[0][1] + directionY * cellSize)
+    snake.insert(0, newHead)
+    snake.pop()
 
     pygame.display.flip()
     clock.tick(6)
