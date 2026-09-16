@@ -22,9 +22,23 @@ def foodPositioner():
     foodY = random.randint(0, lines - 1) * cellSize
     return (foodX, foodY)
 
+def reset():
+    global score 
+    global snake 
+    global directionX 
+    global directionY 
+    global food
+    score = 0
+    snake = [(300, 200), (280, 200), (260, 200)]
+    directionX = 1
+    directionY = 0
+    food = foodPositioner()
+
 food = foodPositioner()
 running = True
+gameOver = False
 while running:
+
     events = pygame.event.get()
     
     for event in events:
@@ -49,13 +63,15 @@ while running:
                     directionX = -1
 
     newHead = (snake[0][0] + directionX * cellSize, snake[0][1] + directionY * cellSize)
+
+    # GameOver conditions
     if newHead[0] >= screenWidth or newHead[0] < 0:
-        running = False
+        gameOver = True
     if newHead[1] >= screenHeight or newHead[1] < 0:
-        running = False
+        gameOver = True
     for s in snake:
         if newHead == s:
-            running = False
+            gameOver = True
 
     screen.fill("dark blue")
     pygame.draw.rect(screen, "red", (food[0], food[1],  cellSize, cellSize))
@@ -72,6 +88,24 @@ while running:
     
     for s in snake:
             pygame.draw.rect(screen, "green", (s[0], s[1],  cellSize, cellSize))
+
+    while gameOver:
+        gameOverEvents = pygame.event.get()
+        font = pygame.font.SysFont(None, 36)  
+        text = font.render("GAMEOVER - press ENTER to play again or ESC to close", True, "white") 
+        screen.blit(text, (150, 300)) 
+        pygame.display.flip()
+        for event in gameOverEvents:
+            if event.type == pygame.KEYDOWN:
+                if (event.key == pygame.K_RETURN):
+                    reset()
+                    gameOver = False
+                    break
+                if (event.key == pygame.K_ESCAPE):
+                    running = False
+                    gameOver = False
+                    break
+        clock.tick(8)
 
     pygame.display.flip()
     clock.tick(8)
