@@ -26,7 +26,7 @@ food = foodPositioner()
 running = True
 while running:
     events = pygame.event.get()
-
+    
     for event in events:
         if event.type == pygame.QUIT:
             running = False
@@ -48,16 +48,21 @@ while running:
                     directionY = 0
                     directionX = -1
 
+    newHead = (snake[0][0] + directionX * cellSize, snake[0][1] + directionY * cellSize)
+    if newHead[0] >= screenWidth or newHead[0] < 0:
+        running = False
+    if newHead[1] >= screenHeight or newHead[1] < 0:
+        running = False
+    for s in snake:
+        if newHead == s:
+            running = False
+
     screen.fill("dark blue")
     pygame.draw.rect(screen, "red", (food[0], food[1],  cellSize, cellSize))
     font = pygame.font.SysFont(None, 36)  
     text = font.render(f"Score: {score}", True, "white") 
     screen.blit(text, (10, 10))        
 
-    for s in snake:
-        pygame.draw.rect(screen, "green", (s[0], s[1],  cellSize, cellSize))
-                
-    newHead = (snake[0][0] + directionX * cellSize, snake[0][1] + directionY * cellSize)
     snake.insert(0, newHead)
     if snake[0] != food: 
         snake.pop()
@@ -65,6 +70,8 @@ while running:
         food = foodPositioner()
         score += 100
     
+    for s in snake:
+            pygame.draw.rect(screen, "green", (s[0], s[1],  cellSize, cellSize))
 
     pygame.display.flip()
     clock.tick(8)
