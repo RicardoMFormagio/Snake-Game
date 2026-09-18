@@ -18,7 +18,7 @@ directionY = 0
 
 score = 0
 clock = pygame.time.Clock()
-gameState = "playing" 
+gameState = "menu" 
 
 def foodPositioner():
     # Divide a tela em colunas/linhas do tamanho da célula para sortear uma posição
@@ -47,79 +47,111 @@ def reset():
 
 food = foodPositioner()
 running = True
+gameState = "menu"
 while running:  # Loop principal do jogo: cada iteração é um "quadro" (frame)
 
-    events = pygame.event.get()
+    if gameState == "playing":
 
-    for event in events:
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.KEYDOWN:
-            # Cada "if" checa se a tecla pressionada é oposta à direção atual.
-            # Isso impede que a cobra vire 180° sobre si mesma e "morra" instantaneamente
-            if (event.key == pygame.K_UP):
-                if not(directionX == 0 and directionY == 1):
-                    directionY = -1
-                    directionX = 0
-            if (event.key == pygame.K_DOWN):
-                if not(directionX == 0 and directionY == -1):
-                    directionY = 1
-                    directionX = 0
-            if (event.key == pygame.K_RIGHT):
-                if not(directionX == -1 and directionY == 0):
-                    directionY = 0
-                    directionX = 1
-            if (event.key == pygame.K_LEFT):
-                if not(directionX == 1 and directionY == 0):
-                    directionY = 0
-                    directionX = -1
+        events = pygame.event.get()
 
-    # Calcula onde a nova cabeça vai ficar, somando a direção atual à posição da cabeça atual.
-    newHead = (snake[0][0] + directionX * cellSize, snake[0][1] + directionY * cellSize)
+        for event in events:
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.KEYDOWN:
+                # Cada "if" checa se a tecla pressionada é oposta à direção atual.
+                # Isso impede que a cobra vire 180° sobre si mesma e "morra" instantaneamente
+                if (event.key == pygame.K_UP):
+                    if not(directionX == 0 and directionY == 1):
+                        directionY = -1
+                        directionX = 0
+                if (event.key == pygame.K_DOWN):
+                    if not(directionX == 0 and directionY == -1):
+                        directionY = 1
+                        directionX = 0
+                if (event.key == pygame.K_RIGHT):
+                    if not(directionX == -1 and directionY == 0):
+                        directionY = 0
+                        directionX = 1
+                if (event.key == pygame.K_LEFT):
+                    if not(directionX == 1 and directionY == 0):
+                        directionY = 0
+                        directionX = -1
 
-    # Condições de game over: a nova cabeça saiu da tela (eixo X ou Y)...
-    if newHead[0] >= screenWidth or newHead[0] < 0:
-        gameState = "gameOver"
-    if newHead[1] >= screenHeight or newHead[1] < 0:
-        gameState = "gameOver"
-    # ...ou a nova cabeça bateu em alguma parte do próprio corpo da cobra.
-    for s in snake:
-        if newHead == s:
+        # Calcula onde a nova cabeça vai ficar, somando a direção atual à posição da cabeça atual.
+        newHead = (snake[0][0] + directionX * cellSize, snake[0][1] + directionY * cellSize)
+
+        # Condições de game over: a nova cabeça saiu da tela (eixo X ou Y)...
+        if newHead[0] >= screenWidth or newHead[0] < 0:
             gameState = "gameOver"
+        if newHead[1] >= screenHeight or newHead[1] < 0:
+            gameState = "gameOver"
+        # ...ou a nova cabeça bateu em alguma parte do próprio corpo da cobra.
+        for s in snake:
+            if newHead == s:
+                gameState = "gameOver"
 
-    screen.fill("dark blue")
-    pygame.draw.rect(screen, "red", (food[0], food[1],  cellSize, cellSize))
-    font = pygame.font.SysFont(None, 36)  
-    text = font.render(f"Score: {score}", True, "white") 
-    screen.blit(text, (10, 10))        
+        screen.fill("dark blue")
+        pygame.draw.rect(screen, "red", (food[0], food[1],  cellSize, cellSize))
+        font = pygame.font.SysFont(None, 36)  
+        text = font.render(f"Score: {score}", True, "white") 
+        screen.blit(text, (10, 10))        
 
-    # Adiciona a nova cabeça na frente da lista: é assim que a cobra "anda".
-    snake.insert(0, newHead)
-    if snake[0] != food:
-        # Se não comeu, remove o último segmento (a cauda), simulando movimento
-        # sem crescer: entra uma célula na frente, sai uma célula atrás.
-        snake.pop()
-    else:
-        # Se comeu, não remove a cauda (a cobra cresce) e sorteia nova comida.
-        food = foodPositioner()
-        score += 100
+        # Adiciona a nova cabeça na frente da lista: é assim que a cobra "anda".
+        snake.insert(0, newHead)
+        if snake[0] != food:
+            # Se não comeu, remove o último segmento (a cauda), simulando movimento
+            # sem crescer: entra uma célula na frente, sai uma célula atrás.
+            snake.pop()
+        else:
+            # Se comeu, não remove a cauda (a cobra cresce) e sorteia nova comida.
+            food = foodPositioner()
+            score += 100
 
-    for s in snake:
-            pygame.draw.rect(screen, "green", (s[0], s[1],  cellSize, cellSize))
+        for s in snake:
+                pygame.draw.rect(screen, "green", (s[0], s[1],  cellSize, cellSize))
 
-    # Loop de pausa exibido quando o jogo termina: fica travado aqui esperando
-    # o jogador decidir entre reiniciar (ENTER) ou sair (ESC).
-    while gameState == "gameOver":
+    elif gameState == "menu":   
         gameOverEvents = pygame.event.get()
-        font = pygame.font.SysFont(None, 36)
-        text = font.render("GAMEOVER - press ENTER to play again or ESC to close", True, "white")
+        screen.fill("black")
+        font = pygame.font.SysFont(None, 36) 
+        text = font.render("Press ENTER to play", True, "white")
         screen.blit(text, (150, 300))
+        text = font.render("Press ESC to close", True, "white")
+        screen.blit(text, (150, 400))
         pygame.display.flip()
+        
         for event in gameOverEvents:
-            if event.type == pygame.KEYDOWN:
+            if event.type == pygame.QUIT:
+                running = False
+                break
+            elif event.type == pygame.KEYDOWN:
                 if (event.key == pygame.K_RETURN):
                     reset()
                     gameState = "playing"
+                    break
+                if (event.key == pygame.K_ESCAPE):
+                    running = False
+                    gameState = ""
+                    break
+        clock.tick(8)
+
+
+    # Loop de pausa exibido quando o jogo termina: fica travado aqui esperando
+        # o jogador decidir entre reiniciar (ENTER) ou sair (ESC).
+    elif gameState == "gameOver":
+        gameOverEvents = pygame.event.get()
+        font = pygame.font.SysFont(None, 36)
+        text = font.render("GAMEOVER - press ENTER to go to menu or ESC to close", True, "white")
+        screen.blit(text, (150, 300))
+        pygame.display.flip()
+        for event in gameOverEvents:
+            if event.type == pygame.QUIT:
+                running = False
+                break
+            elif event.type == pygame.KEYDOWN:
+                if (event.key == pygame.K_RETURN):
+                    reset()
+                    gameState = "menu"
                     break
                 if (event.key == pygame.K_ESCAPE):
                     running = False
