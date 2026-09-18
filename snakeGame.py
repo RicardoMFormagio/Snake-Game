@@ -7,12 +7,11 @@ screenWidth = 1000
 screenHeight = 600
 screen = pygame.display.set_mode((screenWidth, screenHeight))
 
-# Tamanho de cada "quadrado" do jogo. Tudo (cobra, comida, movimento) se move em múltiplos
-# desse valor, o que mantém a cobra sempre alinhada a uma grade invisível.
+# Tamanho de cada célula da grade; tudo se move em múltiplos desse valor.
 cellSize = 20
-# A cobra é uma lista de posições (x, y). O primeiro item é a cabeça.
+# Lista de posições (x, y) da cobra; o primeiro item é a cabeça.
 snake = [(300, 200), (280, 200), (260, 200)]
-# directionX/Y indicam para onde a cabeça se move a cada passo (-1, 0 ou 1 em cada eixo).
+# Direção do movimento da cabeça a cada passo (-1, 0 ou 1 por eixo).
 directionX = 1
 directionY = 0
 
@@ -24,8 +23,7 @@ clock = pygame.time.Clock()
 gameState = "menu" 
 
 def foodPositioner():
-    # Divide a tela em colunas/linhas do tamanho da célula para sortear uma posição
-    # que sempre caia exatamente em cima da grade (evita comida "desalinhada").
+    # Sorteia uma posição alinhada à grade de células.
     columns = screenWidth // cellSize
     lines = screenHeight // cellSize
     foodX = random.randint(0, columns - 1) * cellSize
@@ -33,8 +31,7 @@ def foodPositioner():
     return (foodX, foodY)
 
 def reset():
-    # Precisa de "global" porque essas variáveis foram criadas fora da função:
-    # sem isso, o Python criaria cópias locais e o reset não afetaria o jogo de verdade.
+    # "global" é necessário para alterar as variáveis definidas fora da função.
     global score
     global snake
     global directionX
@@ -51,7 +48,7 @@ def reset():
 food = foodPositioner()
 running = True
 gameState = "menu"
-while running:  # Loop principal do jogo: cada iteração é um "quadro" (frame)
+while running:  # Loop principal: cada iteração é um quadro (frame)
 
     if gameState == "playing":
 
@@ -61,8 +58,7 @@ while running:  # Loop principal do jogo: cada iteração é um "quadro" (frame)
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.KEYDOWN:
-                # Cada "if" checa se a tecla pressionada é oposta à direção atual.
-                # Isso impede que a cobra vire 180° sobre si mesma e "morra" instantaneamente
+                # Bloqueia a tecla oposta à direção atual, evitando virar 180°
                 if (event.key == pygame.K_UP):
                     if not(directionX == 0 and directionY == 1):
                         directionY = -1
@@ -80,33 +76,31 @@ while running:  # Loop principal do jogo: cada iteração é um "quadro" (frame)
                         directionY = 0
                         directionX = -1
 
-        # Calcula onde a nova cabeça vai ficar, somando a direção atual à posição da cabeça atual.
+        # Nova posição da cabeça, somando a direção à posição atual.
         newHead = (snake[0][0] + directionX * cellSize, snake[0][1] + directionY * cellSize)
 
-        # Condições de game over: a nova cabeça saiu da tela (eixo X ou Y)...
+        # Game over: cabeça saiu da tela...
         if newHead[0] >= screenWidth or newHead[0] < 0:
             gameState = "gameOver"
         if newHead[1] >= screenHeight or newHead[1] < 0:
             gameState = "gameOver"
-        # ...ou a nova cabeça bateu em alguma parte do próprio corpo da cobra.
+        # ...ou colidiu com o próprio corpo.
         for s in snake:
             if newHead == s:
                 gameState = "gameOver"
 
         screen.fill("dark blue")
         pygame.draw.rect(screen, "red", (food[0], food[1],  cellSize, cellSize))
-        font = pygame.font.SysFont(None, 36)  
         text = font.render(f"Score: {score}", True, "white") 
         screen.blit(text, (10, 10))        
 
-        # Adiciona a nova cabeça na frente da lista: é assim que a cobra "anda".
+        # Insere a nova cabeça: é assim que a cobra se move.
         snake.insert(0, newHead)
         if snake[0] != food:
-            # Se não comeu, remove o último segmento (a cauda), simulando movimento
-            # sem crescer: entra uma célula na frente, sai uma célula atrás.
+            # Sem comer, remove a cauda (movimento sem crescer).
             snake.pop()
         else:
-            # Se comeu, não remove a cauda (a cobra cresce) e sorteia nova comida.
+            # Ao comer, mantém a cauda (cobra cresce) e sorteia nova comida.
             food = foodPositioner()
             score += 100
 
@@ -146,8 +140,7 @@ while running:  # Loop principal do jogo: cada iteração é um "quadro" (frame)
                     break
         clock.tick(8)
 
-    # Loop de pausa exibido quando o jogo termina: fica travado aqui esperando
-        # o jogador decidir entre reiniciar (ENTER) ou sair (ESC).
+    # Tela de game over: espera o jogador reiniciar (ENTER) ou sair (ESC).
     elif gameState == "gameOver":
         gameOverEvents = pygame.event.get()
 
