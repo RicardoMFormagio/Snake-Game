@@ -18,6 +18,7 @@ directionY = 0
 
 score = 0
 clock = pygame.time.Clock()
+gameState = "playing" 
 
 def foodPositioner():
     # Divide a tela em colunas/linhas do tamanho da célula para sortear uma posição
@@ -36,15 +37,16 @@ def reset():
     global directionX
     global directionY
     global food
+    global gameState
     score = 0
     snake = [(300, 200), (280, 200), (260, 200)]
     directionX = 1
     directionY = 0
     food = foodPositioner()
+    gameState = "playing"
 
 food = foodPositioner()
 running = True
-gameOver = False
 while running:  # Loop principal do jogo: cada iteração é um "quadro" (frame)
 
     events = pygame.event.get()
@@ -77,13 +79,13 @@ while running:  # Loop principal do jogo: cada iteração é um "quadro" (frame)
 
     # Condições de game over: a nova cabeça saiu da tela (eixo X ou Y)...
     if newHead[0] >= screenWidth or newHead[0] < 0:
-        gameOver = True
+        gameState = "gameOver"
     if newHead[1] >= screenHeight or newHead[1] < 0:
-        gameOver = True
+        gameState = "gameOver"
     # ...ou a nova cabeça bateu em alguma parte do próprio corpo da cobra.
     for s in snake:
         if newHead == s:
-            gameOver = True
+            gameState = "gameOver"
 
     screen.fill("dark blue")
     pygame.draw.rect(screen, "red", (food[0], food[1],  cellSize, cellSize))
@@ -107,7 +109,7 @@ while running:  # Loop principal do jogo: cada iteração é um "quadro" (frame)
 
     # Loop de pausa exibido quando o jogo termina: fica travado aqui esperando
     # o jogador decidir entre reiniciar (ENTER) ou sair (ESC).
-    while gameOver:
+    while gameState == "gameOver":
         gameOverEvents = pygame.event.get()
         font = pygame.font.SysFont(None, 36)
         text = font.render("GAMEOVER - press ENTER to play again or ESC to close", True, "white")
@@ -117,11 +119,11 @@ while running:  # Loop principal do jogo: cada iteração é um "quadro" (frame)
             if event.type == pygame.KEYDOWN:
                 if (event.key == pygame.K_RETURN):
                     reset()
-                    gameOver = False
+                    gameState = "playing"
                     break
                 if (event.key == pygame.K_ESCAPE):
                     running = False
-                    gameOver = False
+                    gameState = ""
                     break
         clock.tick(8)
 
