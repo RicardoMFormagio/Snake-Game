@@ -16,6 +16,9 @@ snake = [(300, 200), (280, 200), (260, 200)]
 directionX = 1
 directionY = 0
 
+titleFont = font = pygame.font.SysFont(None, 64)
+font = pygame.font.SysFont(None, 36)
+
 score = 0
 clock = pygame.time.Clock()
 gameState = "menu" 
@@ -111,16 +114,24 @@ while running:  # Loop principal do jogo: cada iteração é um "quadro" (frame)
                 pygame.draw.rect(screen, "green", (s[0], s[1],  cellSize, cellSize))
 
     elif gameState == "menu":   
-        gameOverEvents = pygame.event.get()
+        menuEvents = pygame.event.get()
         screen.fill("black")
-        font = pygame.font.SysFont(None, 36) 
-        text = font.render("Press ENTER to play", True, "white")
-        screen.blit(text, (150, 300))
-        text = font.render("Press ESC to close", True, "white")
-        screen.blit(text, (150, 400))
+        
+        titleText = titleFont.render("SNAKE GAME", True, "white")
+        titleRect = titleText.get_rect(center=(screenWidth // 2, (screenHeight // 2)-100))
+        screen.blit(titleText, titleRect)
+ 
+        text1 = font.render("Press ENTER to play", True, "white")
+        text2 = font.render("Press ESC to close", True, "white")
+
+        rect1 = text1.get_rect(center=(screenWidth // 2, (screenHeight // 2)-50))
+        rect2 = text2.get_rect(center=(screenWidth // 2, (screenHeight // 2)))
+        screen.blit(text1, rect1)
+        screen.blit(text2, rect2)
+
         pygame.display.flip()
         
-        for event in gameOverEvents:
+        for event in menuEvents:
             if event.type == pygame.QUIT:
                 running = False
                 break
@@ -135,14 +146,27 @@ while running:  # Loop principal do jogo: cada iteração é um "quadro" (frame)
                     break
         clock.tick(8)
 
-
     # Loop de pausa exibido quando o jogo termina: fica travado aqui esperando
         # o jogador decidir entre reiniciar (ENTER) ou sair (ESC).
     elif gameState == "gameOver":
         gameOverEvents = pygame.event.get()
-        font = pygame.font.SysFont(None, 36)
-        text = font.render("GAMEOVER - press ENTER to go to menu or ESC to close", True, "white")
-        screen.blit(text, (150, 300))
+
+        text1 = titleFont.render("GAMEOVER", True, "white")
+        rect = text1.get_rect(center=(screenWidth // 2, (screenHeight // 2)-50))
+        screen.blit(text1, rect)
+
+        text4 = font.render(f"Final Score: {score}", True, "white")
+        rect = text4.get_rect(center=(screenWidth // 2, (screenHeight // 2)))
+        screen.blit(text4, rect)
+
+        text2 = font.render("Press ENTER to go back to menu", True, "white")
+        rect = text2.get_rect(center=(screenWidth // 2, (screenHeight // 2)+100))
+        screen.blit(text2, rect)
+
+        text3 = font.render("Press ESC to close", True, "white")
+        rect = text3.get_rect(center=(screenWidth // 2, (screenHeight // 2)+150))
+        screen.blit(text3, rect)
+
         pygame.display.flip()
         for event in gameOverEvents:
             if event.type == pygame.QUIT:
